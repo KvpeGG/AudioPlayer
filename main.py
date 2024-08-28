@@ -1,21 +1,18 @@
 #imports
-#from tkinter import *
 import time
+import PySide6
 import queuesystem
 import vlc
 from pynput import keyboard
 import os
 import random
 
-#window = Tk()
-#lbl = Label(window, text="Testing shit", font=("Helvetica", 16))
-#lbl.place(x=60, y=50)
-#window.title("title")
-#window.geometry("400x150+10+10")
+
+#QT <3
+
 
 
 mediaFolderPath = '/home/kacper/Muzyka/AudioPlayer/'
-
 fileNames = [ f for f in os.listdir(mediaFolderPath) if os.path.isfile(os.path.join(mediaFolderPath, f))]
 print(fileNames)
 
@@ -66,21 +63,9 @@ def on_press(key):
         player.audio_set_volume(volume)
         print("volume: " + str(volume))
 
-    elif key == keyboard.Key.shift and key == keyboard.Key.page_up :
-
-        volume = volume + 1
-        player.audio_set_volume(volume)
-        print("volume: " + str(volume))
-
     elif key == keyboard.Key.page_down:
 
         volume = volume - 5
-        player.audio_set_volume(volume)
-        print("volume: " + str(volume))
-
-    elif key == keyboard.Key.shift and key == keyboard.Key.page_down:
-
-        volume = volume - 1
         player.audio_set_volume(volume)
         print("volume: " + str(volume))
 
@@ -104,26 +89,34 @@ def on_press(key):
             player.play()
 
     elif key == keyboard.Key.shift_r:
+
+        queuesystem.show_next_song(songIndex)
+
+    elif key == keyboard.Key.ctrl_r:
+
+        queuesystem.show_previous_song(songIndex)
+
+    elif key == keyboard.Key.f10:  #to do: change this key to a different one for debugging.
         
-        queuesystem.queue_function()
+        queuesystem.show_current_song(songIndex)
 
 def is_ended():
     global songIndex
     global player
     global fileNames
-        
-    if player.get_state() == vlc.State.Ended:
-        print("The song has ended, idiot." + str(fileNames(songIndex)))
-        songIndex += 1
-        if songIndex >= fileNamesListLength:
-            songIndex = 0
-        player = vlc.MediaPlayer(os.path.join(mediaFolderPath, fileNames[songIndex]))
-        player.play()
-    time.sleep(1)
+
+    while True:  
+        if player.get_state() == vlc.State.Ended:
+            print("The song has ended, idiot.")
+            songIndex += 1
+            if songIndex >= fileNamesListLength:
+                songIndex = 0
+            player = vlc.MediaPlayer(os.path.join(mediaFolderPath, fileNames[songIndex]))
+            player.play()
+        time.sleep(0.2)
 
 
-with keyboard.Listener(on_press=on_press) as listener:  #to do: if tkinter closes, close the keyboard listener and the program.
-    #window.mainloop()
+with keyboard.Listener(on_press=on_press) as listener:  #to do: if PyQt closes, close the keyboard listener and the program.
     is_ended()  
     listener.join()
 
