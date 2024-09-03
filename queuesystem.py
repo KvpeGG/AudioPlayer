@@ -80,6 +80,7 @@ def add_to_queue():
                 
                 songList.insert(newIndex, addSongname)
                 print("Bravo, you did it! You twat... :3")
+            
             else:
                 
                 print("New index out of range.")
