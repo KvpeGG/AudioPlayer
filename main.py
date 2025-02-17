@@ -90,19 +90,19 @@ def on_press(key):
             player = vlc.MediaPlayer(os.path.join(mediaFolderPath, fileNames[songIndex]))
             player.play()
 
-    elif key == keyboard.Key.shift_r:
+    elif key == keyboard.Key.shift_r: #shows next song. 
 
         queuesystem.show_next_song(songIndex)
 
-    elif key == keyboard.Key.ctrl_r:
+    elif key == keyboard.Key.ctrl_r: #shows previous song. 
 
         queuesystem.show_previous_song(songIndex)
 
-    elif key == keyboard.Key.f10:  #to do: change this key to a different one for debugging.
+    elif key == keyboard.Key.scroll_lock:  #shows current song. 
         
         queuesystem.show_current_song(songIndex)
     
-    elif key == keyboard.Key.caps_lock:
+    elif key == keyboard.Key.f4:
         queuesystem.add_to_queue()
 
     elif key == keyboard.Key.f5:

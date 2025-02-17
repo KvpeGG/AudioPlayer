@@ -62,41 +62,64 @@ def show_current_song(songIndexQueue):
     global songQueueLength
 
     print("Currently playing: " + str(songIndexQueue))
-    print("\n Song name: " + songList[songIndexQueue])
+    print("\n Song name: " + str(songList[songIndexQueue]))
 
 #adding song/s to queue:
 def add_to_queue():
+
     global songList
 
-    try:
-        addSongIndex = int(input("Index for the next song: "))
 
-        if 0 <= addSongIndex < len(songList):
-            
-            addSongname = songList.pop(addSongIndex)
-            newIndex = int(input("Enter the new position: "))
 
-            if 0 <= newIndex < len(songList):
-                
-                songList.insert(newIndex, addSongname)
-                print("Bravo, you did it! You twat... :3")
-            
-            else:
-                
-                print("New index out of range.")
-                songList.insert(addSongIndex, addSongname)
-        else:
-            
-            print("Index out of range.")
-            
-    except ValueError:
-        
-        print("Invalid interger.")
+    user_input = input("Index 4 song to add 2 queue: ").strip()
+    print(f"received input: {repr(user_input)}")
+
+
+    cleaned_input = ''.join(c for c in user_input if c.isdigit())
+
+    if not cleaned_input:
+        print("invalid input.")                                 #i dont fucking know what is happening here at this point ._.
+        return
+
+    print(f"cleared input: {repr(cleaned_input)}")
+    addSongIndex = int(cleaned_input)
+
+
+    if 0 <= addSongIndex < len(songList):
+
+        try:
+            addSongName = songList.pop(addSongIndex)
+            newIndex = int(songList[-1])
+            songList.insert(newIndex, addSongName)
+            print("song sucessfully added.")
+        except ValueError:
+            print("invalid integer (?)")
+
  
 
 def print_song_list():
 
     global songList
 
+    print("\nsongList: ")
     print(songList)
 
+
+def play_next():
+
+    global songList
+
+    try: 
+        nextSongIndex = int(input("Index for next song: "))
+
+        if 0 <= nextSongIndex < len(songList):
+
+            nextSongName = songList.pop(nextSongIndex)
+            newIndex = nextSongIndex + 1
+
+        songList.insert(newIndex, nextSongName)
+            
+
+
+    except:
+        raise NotImplementedError
