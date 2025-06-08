@@ -1,28 +1,35 @@
 #imports
 import time
-import six
 import queuesystem
 import vlc
 from pynput import keyboard
 import os
 import random
-
+import six
 
 #QT <3
 
+# Default file path: /home/kacper/Muzyka/Dark Times/
+#--------------------------------------------
+f = open("musicpath.txt", "r")
+mediaFolderPath = f.read().strip()
+f.close()
+
+#--------------------------------------------
 
 
-mediaFolderPath = '/home/kacper/Muzyka/AudioPlayer/'
 fileNames = [ f for f in os.listdir(mediaFolderPath) if os.path.isfile(os.path.join(mediaFolderPath, f))]
 print(fileNames)
-
 
 queuesystem.get_song_list(fileNames)
 
 
 songIndex = 0
 fileNamesListLength = len(fileNames)
+instance = vlc.Instance("--no-keyboard-events", "--no-xlib", "--quiet")
 player = vlc.MediaPlayer(os.path.join(mediaFolderPath, fileNames[songIndex]))
+player.set_media(vlc.Media(os.path.join(mediaFolderPath, fileNames[songIndex])))
+
 
 volume = 5
 #player.audio_set_volume(volume)
@@ -41,7 +48,8 @@ def get_song_length():
     print("Song Length: " + str(duration_seconds))
     
 
-#controls
+# Controls
+#--------------------------------------------
 def on_press(key):
     global volume
     global player
@@ -54,6 +62,7 @@ def on_press(key):
         volume = 100
 
     elif key == keyboard.Key.insert:
+        
         player.play()
 
         if key== keyboard.Key.insert:
@@ -90,23 +99,27 @@ def on_press(key):
             player = vlc.MediaPlayer(os.path.join(mediaFolderPath, fileNames[songIndex]))
             player.play()
 
-    elif key == keyboard.Key.shift_r:
+    elif key == keyboard.Key.shift_r: #shows next song. 
 
         queuesystem.show_next_song(songIndex)
 
-    elif key == keyboard.Key.ctrl_r:
+    elif key == keyboard.Key.ctrl_r: #shows previous song. 
 
         queuesystem.show_previous_song(songIndex)
 
-    elif key == keyboard.Key.f10:  #to do: change this key to a different one for debugging.
+    elif key == keyboard.Key.scroll_lock:  #shows current song. 
         
         queuesystem.show_current_song(songIndex)
     
-    elif key == keyboard.Key.caps_lock:
+    elif key == keyboard.Key.f4:
+
+        
         queuesystem.add_to_queue()
 
     elif key == keyboard.Key.f5:
         queuesystem.print_song_list()
+
+#--------------------------------------------
 
 def is_ended():
     global songIndex
@@ -121,7 +134,7 @@ def is_ended():
                 songIndex = 0
             player = vlc.MediaPlayer(os.path.join(mediaFolderPath, fileNames[songIndex]))
             player.play()
-        time.sleep(0.2)
+        time.sleep(0.05)
 
 
 with keyboard.Listener(on_press=on_press) as listener:  #to do: if PyQt closes, close the keyboard listener and the program.
