@@ -1,5 +1,5 @@
 
-    Documentation of Burmilla Music
+Documentation of Burmilla Music
 
 
     Setup: 
