@@ -42,7 +42,7 @@ elif input_choice.isdigit():
     choice_index = int(input_choice) - 1
     if 0 <= choice_index < len(folderList):
         selected_folder = folderList[choice_index]
-        mediaFolderPath = os.path.join(r"C:\Burmilla Music\Music", selected_folder)
+        mediaFolderPath = os.path.join(MD.folder_path, selected_folder)
         print(f"Selected folder: {selected_folder}")
     else:
         print("Invalid choice. Exiting the program.")
