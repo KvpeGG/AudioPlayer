@@ -1,0 +1,7 @@
+windows: 
+
+python -m PyInstaller --onefile --name "Burmilla Music" --icon=BM.ico main.py --add-data "vlc;vlc" --add-data "musicpath.txt;." --add-data "metadata.py;."
+
+linux: 
+
+python3 -m PyInstaller --onefile --name "Burmilla Music" --icon=BM.ico main.py --add-data "vlc:vlc" --add-data "musicpath.txt:." --add-data "metadata.py:."

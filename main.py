@@ -1,4 +1,9 @@
+
+version = "0.1.0-alpha"
+print("\nBurmilla Music Player " + version + "\n")
+
 #imports
+#---------------------------------------------
 import time
 import queuesystem
 import vlc
@@ -6,35 +11,99 @@ from pynput import keyboard
 import os
 import random
 import six
-
-#QT <3
-
-# Default file path: /home/kacper/Muzyka/Dark Times/
-#--------------------------------------------
-f = open("musicpath.txt", "r")
-mediaFolderPath = f.read().strip()
-f.close()
-
-#--------------------------------------------
+import metadata as MD
 
 
+# Select startup folder
+#---------------------------------------------
+MetaDataDisplay = MD.MetaDataDisplay
+dirList = os.listdir(MD.folder_path)
+
+# Filter only-folders
+folderList = [f for f in dirList if os.path.isdir(os.path.join(MD.folder_path, f))]
+
+if not folderList:
+    print(r"No folders found in the specified directory.")
+    print(r"Please create a folder in the directory or change the path in musicPath.txt to a folder with music files.")
+    print(r"You can find the musicPath.txt file in the directory: C:\Burmilla Music\musicPath.txt")
+    input("Press Enter to exit...")
+    exit(1)
+
+print("Available folders:")
+for i, folder in enumerate(folderList):
+    print(f"{i + 1}. {folder}")
+
+input_choice = input("Select a folder by number (or type 'exit' to quit): ")
+
+if input_choice.lower() == 'exit':
+    print("Exiting the program.")
+    exit(0)
+elif input_choice.isdigit():
+    choice_index = int(input_choice) - 1
+    if 0 <= choice_index < len(folderList):
+        selected_folder = folderList[choice_index]
+        mediaFolderPath = os.path.join(r"C:\Burmilla Music\Music", selected_folder)
+        print(f"Selected folder: {selected_folder}")
+    else:
+        print("Invalid choice. Exiting the program.")
+        exit(1)
+
+
+# A class to handle file paths
+#---------------------------------------------
+class FileHandler(object): 
+    def __init__(self, path):
+        self.path = path
+
+    def exists(self):
+        return os.path.exists(self.path)
+        
+    def create(self):
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(self.path), exist_ok=True)
+        with open(self.path, 'w') as f:
+            f.write("")
+
+music_file_handler = FileHandler(r"C:\Burmilla Music\musicPath.txt")
+
+if not music_file_handler.exists():
+    music_file_handler.create()
+
+
+# Uses Song Names: 
+#----------
 fileNames = [ f for f in os.listdir(mediaFolderPath) if os.path.isfile(os.path.join(mediaFolderPath, f))]
-print(fileNames)
+fileNames = MD.get_sorted_file_names(mediaFolderPath)
 
+
+# Display Songs in the selected folder
+#---------------------------------------------
+file_paths = [os.path.join(mediaFolderPath, fname) for fname in fileNames]
+MD.display_metadata(file_paths)
+
+
+# Get song list and initialize the player
+#---------------------------------------------
 queuesystem.get_song_list(fileNames)
-
-
 songIndex = 0
+
+
+
 fileNamesListLength = len(fileNames)
 instance = vlc.Instance("--no-keyboard-events", "--no-xlib", "--quiet")
 player = vlc.MediaPlayer(os.path.join(mediaFolderPath, fileNames[songIndex]))
 player.set_media(vlc.Media(os.path.join(mediaFolderPath, fileNames[songIndex])))
 
+# Set the initial volume
+#--------------------------------------------
+# Set the initial volume to 20%
+# You can adjust this value as needed (0-100)
+volume = 20
+player.audio_set_volume(volume)
 
-volume = 5
-#player.audio_set_volume(volume)
 
-
+# Get song length
+#---------------------------------------------
 
 def get_song_length():
     global player
@@ -44,8 +113,8 @@ def get_song_length():
     while player.get_media().get_duration() < 0:
         continue
 
-    duration_seconds = player.get_media().get_duration() * 1000
-    print("Song Length: " + str(duration_seconds))
+    duration_ms = player.get_media().get_duration()
+    print("Song Length: " + str(duration_ms / 1000) + " seconds")
     
 
 # Controls
@@ -90,6 +159,12 @@ def on_press(key):
             player = vlc.MediaPlayer(os.path.join(mediaFolderPath, fileNames[songIndex]))
             player.play()
 
+            file_path = os.path.join(mediaFolderPath, fileNames[songIndex]) 
+            metadata_display = MD.MetaDataDisplay(file_path)                            #            MD.MetaDataDisplay(file_path).display_metadata()
+            currentSongName = metadata_display.display_metadata()
+            if not currentSongName == None and not currentSongName == "":
+                print("Now playing: " + currentSongName + "\n")
+
     elif key == keyboard.Key.end:
             
             player.stop()
@@ -98,6 +173,13 @@ def on_press(key):
                 songIndex = 0
             player = vlc.MediaPlayer(os.path.join(mediaFolderPath, fileNames[songIndex]))
             player.play()
+
+            file_path = os.path.join(mediaFolderPath, fileNames[songIndex]) 
+            metadata_display = MD.MetaDataDisplay(file_path)
+            currentSongName = metadata_display.display_metadata()
+            if not currentSongName == None and not currentSongName == "":
+                print("Now playing: " + currentSongName + "\n")
+
 
     elif key == keyboard.Key.shift_r: #shows next song. 
 
@@ -110,6 +192,7 @@ def on_press(key):
     elif key == keyboard.Key.scroll_lock:  #shows current song. 
         
         queuesystem.show_current_song(songIndex)
+        get_song_length()
     
     elif key == keyboard.Key.f4:
 
@@ -117,10 +200,12 @@ def on_press(key):
         queuesystem.add_to_queue()
 
     elif key == keyboard.Key.f5:
-        queuesystem.print_song_list()
+        file_paths = [os.path.join(mediaFolderPath, fname) for fname in fileNames]
+        MD.display_metadata(file_paths)
+
+
 
 #--------------------------------------------
-
 def is_ended():
     global songIndex
     global player
@@ -128,19 +213,21 @@ def is_ended():
 
     while True:  
         if player.get_state() == vlc.State.Ended:
-            print("The song has ended, idiot.")
+            print("The song has ended, skipping to the next song.")
+
+            file_path = os.path.join(mediaFolderPath, fileNames[songIndex]) 
+            metadata_display = MD.MetaDataDisplay(file_path)
+            currentSongName = metadata_display.display_metadata()
+            if not currentSongName == None and not currentSongName == "":
+                print("Now playing: " + currentSongName + "\n")
+
             songIndex += 1
             if songIndex >= fileNamesListLength:
                 songIndex = 0
             player = vlc.MediaPlayer(os.path.join(mediaFolderPath, fileNames[songIndex]))
             player.play()
-        time.sleep(0.05)
-
+        time.sleep(0.01)  # Sleep for a short time to avoid busy waiting
 
 with keyboard.Listener(on_press=on_press) as listener:  #to do: if PyQt closes, close the keyboard listener and the program.
     is_ended()  
     listener.join()
-
-
-
-
