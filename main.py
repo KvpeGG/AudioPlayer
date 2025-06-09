@@ -215,17 +215,18 @@ def is_ended():
         if player.get_state() == vlc.State.Ended:
             print("The song has ended, skipping to the next song.")
 
+            songIndex += 1
+            if songIndex >= fileNamesListLength:
+                songIndex = 0
+            player = vlc.MediaPlayer(os.path.join(mediaFolderPath, fileNames[songIndex]))
+            player.play()
+            
             file_path = os.path.join(mediaFolderPath, fileNames[songIndex]) 
             metadata_display = MD.MetaDataDisplay(file_path)
             currentSongName = metadata_display.display_metadata()
             if not currentSongName == None and not currentSongName == "":
                 print("Now playing: " + currentSongName + "\n")
 
-            songIndex += 1
-            if songIndex >= fileNamesListLength:
-                songIndex = 0
-            player = vlc.MediaPlayer(os.path.join(mediaFolderPath, fileNames[songIndex]))
-            player.play()
         time.sleep(0.01)  # Sleep for a short time to avoid busy waiting
 
 with keyboard.Listener(on_press=on_press) as listener:  #to do: if PyQt closes, close the keyboard listener and the program.
