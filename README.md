@@ -6,36 +6,32 @@ Setup:
 
         1. Install Python from https://www.python.org/downloads/
 
-        2. Install the vlc package using pip (terminal) with the command "pip install python-vlc"
+        2. Install VLC from https://www.videolan.org/
 
-        3. Install the pynput package using pip (terminal) with the command "pip install pynput"
-
-        4. Edit musicpath.txt file. Add your own custom music path - where music files are stored. ( e.g: C:/users/user/music/musicfolder/ )
+        3. Add your own folders with music to C:\Burmilla Music\Music\ or type in your own path in "musicPath.txt" located at "C:\Burmilla Music\". 
 
 
 Start Up:
 
-        1.open path in the terminal where the application's files are located. 
+        1. Open the Burmilla Music App. 
 
-        2. type in "python main.py" 
-
-        3. press Inject to start listening to music. 
+        2. Select your music folder and press Enter. 
 
 
 Keyboard Controls:
 
-        Insert - Start/Stop
+        Insert - Start/Stop.
 
-        Home - Skip Song
+        Home - Skip Song.
 
-        End - Previous Song
+        End - Previous Song.
 
-        Page Up - Volume Up
+        Page Up - Volume Up.
 
-        Page Down - Volume Down
+        Page Down - Volume Down.
 
-        Right Shift - Show Next Song 
+        Right Shift - Show Next Song.
 
-        Right Control - Show Previous Song
+        Right Control - Show Previous Song.
 
-        F5 - Show List of Songs
+        F5 - Show the List of Songs Loaded. 
